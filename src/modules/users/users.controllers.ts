@@ -1,7 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { CreateUserBody } from "./users.schemas";
+import { CreateUserBody, LoginBody } from "./users.schemas";
 import { SYSTEMROLES } from "../../config/permissions";
-import { assignRoleToUser, createUser, getRoleByName, getUsersByApplication } from "./users.services";
+import { assignRoleToUser, createUser, getRoleByName, getUserByEmail, getUsersByApplication } from "./users.services";
+import jwt from "jsonwebtoken"
 
 export async function createUserHandler(
     req:FastifyRequest<{
@@ -38,6 +39,34 @@ export async function createUserHandler(
         return user;
     }
     catch(e){
-        rep.send(e)
+        console.log(e);
+        rep.send(
+            {message:"Unable to out up with your request"}
+        )
     }
+}
+
+export async function loginHandler(req:FastifyRequest<{
+    Body: LoginBody
+}>, res:FastifyReply) {
+    
+    const {applicationId, email, password}= req.body;
+
+
+    const user = await getUserByEmail({email, applicationId});
+
+    if(!user){
+        return res.code(400).send({
+            message:"Invalid email id"
+        })
+    }
+
+    const token = jwt.sign({
+        id:user.id,
+        email,
+        applicationId,
+        scopes:user.permissions
+    },"Signzy-rules")
+
+    return token;
 }
