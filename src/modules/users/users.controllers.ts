@@ -1,8 +1,9 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { CreateUserBody, LoginBody } from "./users.schemas";
+import { CreateUserBody, LoginBody, assignRoleToUserBody,} from "./users.schemas";
 import { SYSTEMROLES } from "../../config/permissions";
 import { assignRoleToUser, createUser, getRoleByName, getUserByEmail, getUsersByApplication } from "./users.services";
 import jwt from "jsonwebtoken"
+import { logger } from "../../utils/logger";
 
 export async function createUserHandler(
     req:FastifyRequest<{
@@ -68,5 +69,28 @@ export async function loginHandler(req:FastifyRequest<{
         scopes:user.permissions
     },"Signzy-rules")
 
-    return token;
+    return {token};
+}
+
+
+//here we havent checked if the role and the user are on the same applicationId
+export async function assignRoleToUserHandler(req:FastifyRequest<{
+    Body:assignRoleToUserBody
+}>,res:FastifyReply) {
+    
+    const {userId, roleId, applicationId} = req.body;
+
+    try{
+        const result = await assignRoleToUser({
+            userId, 
+            applicationId,
+            roleId
+        })
+        return result;
+    }
+
+    catch(e){
+        logger.error(e,'error assigning role to user')
+        return res.code(400);
+    }
 }

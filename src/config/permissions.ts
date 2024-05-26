@@ -7,6 +7,8 @@ export const ALLPERMISSIONS =[
     //posts permissions
     'posts:write',
     'posts:read',
+    'post:delete',
+    'post-edit-own'
 ] as const;
 
 export const PERMISSIONS = ALLPERMISSIONS.reduce((acc, permission)=>{
