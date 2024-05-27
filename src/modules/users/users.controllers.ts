@@ -77,8 +77,11 @@ export async function loginHandler(req:FastifyRequest<{
 export async function assignRoleToUserHandler(req:FastifyRequest<{
     Body:assignRoleToUserBody
 }>,res:FastifyReply) {
+
+    const user=req.user;
+    const applicationId=user.applicationId
     
-    const {userId, roleId, applicationId} = req.body;
+    const {userId, roleId} = req.body;
 
     try{
         const result = await assignRoleToUser({

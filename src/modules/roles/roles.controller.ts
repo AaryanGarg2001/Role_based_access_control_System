@@ -1,11 +1,15 @@
-import { FastifyReply, FastifyRequest } from "fastify";
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { createRoleBody } from "./roles.schemas";
 import { createRole } from "./roles.services";
 
-export async function createRoleHandler(req:FastifyRequest<{
+export async function createRoleHandler(request:FastifyRequest<{
     Body: createRoleBody
 }>, res:FastifyReply) {
-    const {name, permissions, applicationId} = req.body;
+
+    const user=request.user;
+    const applicationId=user.applicationId;
+
+    const {name, permissions} = request.body;
 
     const role=await createRole({
         name,permissions,applicationId
